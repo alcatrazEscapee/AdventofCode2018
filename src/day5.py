@@ -26,6 +26,5 @@ def find_best_polymer(poly):
 
 if __name__ == '__main__':
     polymer = open('../assets/day5_input.txt').readline()
-    print('The smallest is', reduce_polymer(len(polymer)))
-
+    print('The smallest is', len(reduce_polymer(polymer)))
     print('The best removal is', find_best_polymer(polymer))
