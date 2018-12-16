@@ -1,4 +1,4 @@
-# Day 16:
+# Day 16: Chronal Classification
 from collections import defaultdict
 from copy import deepcopy
 
@@ -9,9 +9,6 @@ class RTest:
         self.opc = args[0]
         self.args = args[1:]
         self.exp = exp
-
-    def __repr__(self):
-        return str(self.reg) + str(self.opc) + str(self.args) + str(self.exp)
 
 
 def main():
