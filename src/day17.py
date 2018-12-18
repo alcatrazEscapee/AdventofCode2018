@@ -1,4 +1,4 @@
-# Day 17:
+# Day 17: Reservoir Research
 from collections import namedtuple
 
 
