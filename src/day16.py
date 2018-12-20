@@ -2,6 +2,25 @@
 from collections import defaultdict
 from copy import deepcopy
 
+OPCODES = {
+    'addr': lambda r, a, b: r[a] + r[b],
+    'addi': lambda r, a, b: r[a] + b,
+    'mulr': lambda r, a, b: r[a] * r[b],
+    'muli': lambda r, a, b: r[a] * b,
+    'banr': lambda r, a, b: r[a] & r[b],
+    'bani': lambda r, a, b: r[a] & b,
+    'borr': lambda r, a, b: r[a] | r[b],
+    'bori': lambda r, a, b: r[a] | b,
+    'setr': lambda r, a, b: r[a],
+    'seti': lambda r, a, b: a,
+    'gtir': lambda r, a, b: a > r[b],
+    'gtri': lambda r, a, b: r[a] > b,
+    'gtrr': lambda r, a, b: r[a] > r[b],
+    'eqir': lambda r, a, b: a == r[b],
+    'eqri': lambda r, a, b: r[a] == b,
+    'eqrr': lambda r, a, b: r[a] == r[b]
+}
+
 
 class RTest:
     def __init__(self, reg, args, exp):
@@ -12,56 +31,6 @@ class RTest:
 
 
 def main():
-    def addr(a, b, c):
-        reg[c] = reg[a] + reg[b]
-
-    def addi(a, b, c):
-        reg[c] = reg[a] + b
-
-    def mulr(a, b, c):
-        reg[c] = reg[a] * reg[b]
-
-    def muli(a, b, c):
-        reg[c] = reg[a] * b
-
-    def banr(a, b, c):
-        reg[c] = reg[a] & reg[b]
-
-    def bani(a, b, c):
-        reg[c] = reg[a] & b
-
-    def borr(a, b, c):
-        reg[c] = reg[a] | reg[b]
-
-    def bori(a, b, c):
-        reg[c] = reg[a] | b
-
-    def setr(a, b, c):
-        reg[c] = reg[a]
-
-    def seti(a, b, c):
-        reg[c] = a
-
-    def gtir(a, b, c):
-        reg[c] = 1 if a > reg[b] else 0
-
-    def gtri(a, b, c):
-        reg[c] = 1 if reg[a] > b else 0
-
-    def gtrr(a, b, c):
-        reg[c] = 1 if reg[a] > reg[b] else 0
-
-    def eqir(a, b, c):
-        reg[c] = 1 if a == reg[b] else 0
-
-    def eqri(a, b, c):
-        reg[c] = 1 if reg[a] == b else 0
-
-    def eqrr(a, b, c):
-        reg[c] = 1 if reg[a] == reg[b] else 0
-
-    opcodes = [addr, addi, mulr, muli, banr, bani, borr, bori, setr, seti, gtir, gtri, gtrr, eqir, eqri, eqrr]
-
     with open('../assets/day16_input.txt') as file:
         lines = file.read().split('\n')
 
@@ -84,24 +53,23 @@ def main():
         tests.add(RTest(deepcopy(reg), args, deepcopy(exp)))
         lines.pop(0)
 
-    reg = defaultdict(int)
     match_three = 0
     functions = {}
     for test in tests:
         matches = set()
         valid = 0
-        for opc in opcodes:
+        for name, opc in OPCODES.items():
             reg = deepcopy(test.reg)
-            opc(*test.args)
+            reg[test.args[2]] = opc(reg, *test.args[0:2])
             if reg == test.exp:
                 valid += 1
                 if opc not in functions.values():
-                    matches.add(opc)
+                    matches.add(name)
 
         if len(matches) == 1:
-            opc = matches.pop()
-            functions[test.opc] = opc
-            print('Opcode %d = \'%s\'' % (test.opc, opc.__name__))
+            name = matches.pop()
+            functions[test.opc] = OPCODES[name]
+            print('%s = %d' % (name, test.opc))
 
         if valid >= 3:
             match_three += 1
@@ -112,7 +80,7 @@ def main():
     reg = defaultdict(int)
     for line in open('../assets/day16_input2.txt').read().split('\n'):
         args = list(map(int, line.split()))
-        functions[args[0]](*args[1:])
+        reg[args[3]] = functions[args[0]](reg, *args[1:3])
     print('Test Program Result = %d' % reg[0])
 
 
