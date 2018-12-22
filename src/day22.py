@@ -39,11 +39,6 @@ def terrain(p):
     return erosion(p) % 3
 
 
-def find_risk(tx: int, ty: int):
-    geo = build_map(tx, ty)
-    print('Risk =', sum(sum(geo[y]) for y in range(MAX_Y)))
-
-
 def find_path(tx: int, ty: int, extra: int = 100):
     ero = build_map(tx, ty, extra)
     queue = []
@@ -82,9 +77,8 @@ def find_path(tx: int, ty: int, extra: int = 100):
 
 
 DEPTH = 6084
-MAX_X, MAX_Y = 15, 710
 TARGET = (14, 709)
 
 if __name__ == '__main__':
-    find_risk(*TARGET)
+    print('Risk =', sum(sum(row) for row in build_map(*TARGET)))
     find_path(*TARGET)
