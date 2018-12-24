@@ -38,17 +38,6 @@ class Group:
         return self.units <= 0
 
 
-TEST_IMMUNE = [
-    Group(17, 5390, 2, 4507, 'fire', weak=('radiation', 'bludgeoning')),
-    Group(989, 1274, 3, 25, 'slashing', immune=('fire',), weak=('bludgeoning', 'slashing'))
-]
-
-TEST_INFECT = [
-    Group(801, 4706, 1, 116, 'bludgeoning', weak=('radiation',)),
-    Group(4485, 2961, 4, 12, 'slashing', immune=('radiation',), weak=('fire', 'cold'))
-]
-
-
 def simulate(immune: list, infect: list):
     stale_counter = 0
     while True:
@@ -98,27 +87,12 @@ def simulate(immune: list, infect: list):
 def choose_targets(players, enemies):
     targets = set(range(len(enemies)))
     for player in players:
-        player.target = sel_target = -1
-        sel_eff = 0
-        sel_init = 0
-        sel_dmg = 0
-        for target in targets:
-            dmg = enemies[target].dmg_simulate(player)
-            eff = enemies[target].eff_power()
-            init = enemies[target].init
-            # Damage, then effective power, then initiative, otherwise don't choose
-            if dmg == 0:
-                continue
-            if dmg > sel_dmg or (dmg == sel_dmg and (eff > sel_eff or (eff == sel_eff and init > sel_init))):
-                # Update the selected enemy
-                sel_target = target
-                sel_eff = eff
-                sel_init = init
-                sel_dmg = dmg
-
-        if sel_target != -1:
-            targets.remove(sel_target)
-            player.target = sel_target
+        player.target = -1
+        if targets:
+            sel_target = max(targets, key=lambda t: (enemies[t].dmg_simulate(player), enemies[t].eff_power(), enemies[t].init))
+            if enemies[sel_target].dmg_simulate(player) > 0:
+                targets.remove(sel_target)
+                player.target = sel_target
 
 
 def make_armies(boost=0):
@@ -159,6 +133,15 @@ def parse_lines(lines):
         groups.append(Group(units, hp, init, atk, atk_type, tuple(immune), tuple(weak)))
     return groups
 
+
+TEST_IMMUNE = [
+    Group(17, 5390, 2, 4507, 'fire', weak=('radiation', 'bludgeoning')),
+    Group(989, 1274, 3, 25, 'slashing', immune=('fire',), weak=('bludgeoning', 'slashing'))
+]
+TEST_INFECT = [
+    Group(801, 4706, 1, 116, 'bludgeoning', weak=('radiation',)),
+    Group(4485, 2961, 4, 12, 'slashing', immune=('radiation',), weak=('fire', 'cold'))
+]
 
 if __name__ == '__main__':
     simulate(TEST_IMMUNE, TEST_INFECT)
